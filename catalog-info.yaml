@@ -10,8 +10,6 @@ metadata:
 spec:
   type: service
   lifecycle: experimental
-  owner: guests
-  system: example-system
-  providesApis:
-    - calculator-api
-    -
+  owner: guests  # Changé de "team-a" vers "guests"
+  system: examples  # Référence le système qui existe déjà
+  # Retiré providesApis temporairement
