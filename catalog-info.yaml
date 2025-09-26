@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: simple-java-calculator
+  description: "A simple Java calculator application"
+  tags:
+    - java
+    - calculator
+    - example
+spec:
+  type: service
+  lifecycle: experimental
+  owner: guests
+  system: example-system
+  providesApis:
+    - calculator-api
+    -
