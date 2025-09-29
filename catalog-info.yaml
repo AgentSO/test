@@ -3,6 +3,8 @@ kind: Component
 metadata:
   name: simple-java-calculator
   description: "A simple Java calculator application"
+  annotations:
+    github.com/project-slug: AgentSO/test
   tags:
     - java
     - calculator
