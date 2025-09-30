@@ -1,0 +1,158 @@
+# .gitlab-ci.yml avec annotations Backstage
+
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  DOCKER_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+
+# Job de build
+build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - echo "Building application..."
+    - docker build -t $DOCKER_IMAGE .
+    - docker push $DOCKER_IMAGE
+  annotations:
+    backstage.io/build-url: $CI_PIPELINE_URL
+    backstage.io/build-status: $CI_PIPELINE_STATUS
+  tags:
+    - docker
+  only:
+    - main
+    - develop
+
+# Job de tests unitaires
+test:unit:
+  stage: test
+  image: node:18
+  script:
+    - echo "Running unit tests..."
+    - npm install
+    - npm run test:unit
+  coverage: '/Lines\s*:\s*(\d+\.\d+)%/'
+  annotations:
+    backstage.io/test-type: unit
+    backstage.io/coverage-url: $CI_PROJECT_URL/-/jobs/$CI_JOB_ID/artifacts/browse/coverage
+  artifacts:
+    reports:
+      junit: junit.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+    paths:
+      - coverage/
+    expire_in: 1 week
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# Job de tests d'intégration
+test:integration:
+  stage: test
+  image: node:18
+  services:
+    - postgres:14
+  variables:
+    POSTGRES_DB: test_db
+    POSTGRES_USER: test_user
+    POSTGRES_PASSWORD: test_password
+  script:
+    - echo "Running integration tests..."
+    - npm install
+    - npm run test:integration
+  annotations:
+    backstage.io/test-type: integration
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# Job de sécurité
+security:scan:
+  stage: test
+  image: aquasec/trivy:latest
+  script:
+    - echo "Running security scan..."
+    - trivy image --severity HIGH,CRITICAL $DOCKER_IMAGE
+  annotations:
+    backstage.io/security-scan: trivy
+    backstage.io/scan-url: $CI_PIPELINE_URL
+  allow_failure: true
+  only:
+    - main
+    - develop
+
+# Déploiement en staging
+deploy:staging:
+  stage: deploy
+  image: bitnami/kubectl:latest
+  script:
+    - echo "Deploying to staging..."
+    - kubectl config use-context staging
+    - kubectl set image deployment/myapp myapp=$DOCKER_IMAGE -n staging
+    - kubectl rollout status deployment/myapp -n staging
+  environment:
+    name: staging
+    url: https://staging.example.com
+    on_stop: stop:staging
+  annotations:
+    backstage.io/kubernetes-id: myapp-staging
+    backstage.io/kubernetes-namespace: staging
+    backstage.io/deployment-url: https://staging.example.com
+  only:
+    - develop
+
+# Déploiement en production
+deploy:production:
+  stage: deploy
+  image: bitnami/kubectl:latest
+  script:
+    - echo "Deploying to production..."
+    - kubectl config use-context production
+    - kubectl set image deployment/myapp myapp=$DOCKER_IMAGE -n production
+    - kubectl rollout status deployment/myapp -n production
+  environment:
+    name: production
+    url: https://production.example.com
+    on_stop: stop:production
+  annotations:
+    backstage.io/kubernetes-id: myapp-production
+    backstage.io/kubernetes-namespace: production
+    backstage.io/deployment-url: https://production.example.com
+    backstage.io/techdocs-ref: dir:.
+  when: manual
+  only:
+    - main
+
+# Job pour arrêter staging
+stop:staging:
+  stage: deploy
+  image: bitnami/kubectl:latest
+  script:
+    - kubectl delete deployment myapp -n staging
+  environment:
+    name: staging
+    action: stop
+  when: manual
+  only:
+    - develop
+
+# Job pour arrêter production
+stop:production:
+  stage: deploy
+  image: bitnami/kubectl:latest
+  script:
+    - kubectl delete deployment myapp -n production
+  environment:
+    name: production
+    action: stop
+  when: manual
+  only:
+    - main
