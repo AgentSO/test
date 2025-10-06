@@ -5,6 +5,10 @@ metadata:
   annotations:
     backstage.io/techdocs-ref: dir:.
   description: "A simple Java calculator application"
+  annotations:
+    github.com/project-slug: AgentSO/test
+    backstage.io/kubernetes-id: myapp-production
+    backstage.io/techdocs-ref: dir:.
   tags:
     - java
     - calculator
