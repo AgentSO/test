@@ -1,3 +1,22 @@
-site_name: 'Documentation de Mon Projet'
+site_name: 'Simple Java Calculator'
+site_description: 'Documentation for Simple Java Calculator'
+site_url: 'https://github.com/AgentSO/test'
+
+nav:
+  - Home: index.md
+
 plugins:
   - techdocs-core
+
+theme:
+  name: material
+  palette:
+    primary: blue
+    accent: blue
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+
