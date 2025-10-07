@@ -1,10 +1,5 @@
 site_name: 'Simple Java Calculator'
-
 nav:
   - Home: index.md
-
 plugins:
   - techdocs-core:
-      
-theme:
-  name: material
