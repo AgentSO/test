@@ -4,7 +4,7 @@ nav:
   - Home: index.md
 
 plugins:
-  - techdocs-core
+  - search
 
 theme:
   name: material
