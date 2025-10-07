@@ -1,7 +1,6 @@
-site_name: 'Test'
-nav:
-  - Home: index.md
-theme:
-  name: material
+site_name: a-unique-name-for-your-docs
+site_description: An informative description
 plugins:
-  - search
+  - techdocs-core
+nav:
+  - Getting Started: index.md
