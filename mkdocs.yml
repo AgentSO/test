@@ -1,5 +1,4 @@
-site_name: 'Simple Java Calculator'
-site_description: 'Documentation for Simple Java Calculator'
+site_name: Simple Java Calculator
 
 nav:
   - Home: index.md
@@ -7,3 +6,5 @@ nav:
 plugins:
   - techdocs-core
 
+theme:
+  name: material
