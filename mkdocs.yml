@@ -1,10 +1,7 @@
-site_name: Simple Java Calculator
-
+site_name: 'Test'
 nav:
   - Home: index.md
-
-plugins:
-  - search
-
 theme:
   name: material
+plugins:
+  - search
